@@ -3,6 +3,8 @@ const {
   QMovie,
   QWidget,
   QLabel,
+  QLineEdit,
+  QPushButton,
   FlexLayout
 } = require("@nodegui/nodegui");
 const axios = require("axios").default;
@@ -13,6 +15,11 @@ const main = async () => {
 
   const center = new QWidget();
   center.setLayout(new FlexLayout());
+
+  const searchContainer = createSearchContainer(searchText => {
+    console.log("searchText: ", searchText);
+  });
+  center.layout.addWidget(searchContainer);
 
   const listOfGifs = await searchGifs("hello");
   const container = await getGifViews(listOfGifs);
@@ -72,6 +79,44 @@ async function getGifViews(listOfGifs) {
       height: 300px;
   `);
   return container;
+}
+
+function createSearchContainer(onSearch) {
+  const searchContainer = new QWidget();
+  searchContainer.setObjectName("searchContainer");
+  searchContainer.setLayout(new FlexLayout());
+
+  const searchInput = new QLineEdit();
+  searchInput.setObjectName("searchInput");
+
+  const searchButton = new QPushButton();
+  searchButton.setObjectName("searchButton");
+  searchButton.setText(" 🔎 ");
+
+  searchButton.addEventListener("clicked", () => {
+    onSearch(searchInput.text());
+  });
+
+  searchContainer.layout.addWidget(searchInput);
+  searchContainer.layout.addWidget(searchButton);
+
+  searchContainer.setStyleSheet(`
+    #searchContainer {
+      flex-direction: 'row';
+      padding: 10px;
+      align-items: 'center';
+    }
+    #searchInput {
+      flex: 1;
+      height: 40px;
+    }
+    #searchButton {
+      margin-left: 5px;
+      width: 50px;
+      height: 35px;
+    }  
+  `);
+  return searchContainer;
 }
 
 main().catch(console.error);

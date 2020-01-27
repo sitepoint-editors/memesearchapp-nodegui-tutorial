@@ -1,19 +1,25 @@
-const { QMainWindow, QMovie, QLabel } = require("@nodegui/nodegui");
+const {
+  QMainWindow,
+  QMovie,
+  QWidget,
+  QLabel,
+  FlexLayout
+} = require("@nodegui/nodegui");
 const axios = require("axios").default;
 
 const main = async () => {
   const win = new QMainWindow();
   win.setWindowTitle("Meme Search");
 
-  const label = new QLabel();
-  label.setText("Hello World");
+  const center = new QWidget();
+  center.setLayout(new FlexLayout());
 
-  const gifMovie = await getMovie(
-    "https://upload.wikimedia.org/wikipedia/commons/e/e3/Animhorse.gif"
-  );
-  label.setMovie(gifMovie);
+  const listOfGifs = await searchGifs("hello");
+  const container = await getGifViews(listOfGifs);
 
-  win.setCentralWidget(label);
+  center.layout.addWidget(container);
+
+  win.setCentralWidget(center);
   win.show();
 
   global.win = win;
@@ -27,7 +33,7 @@ async function getMovie(url) {
   return movie;
 }
 
-const GIPHY_API_KEY = "api key here";
+const GIPHY_API_KEY = "your api key";
 
 async function searchGifs(searchTerm) {
   const url = `https://api.giphy.com/v1/gifs/search`;
@@ -41,7 +47,31 @@ async function searchGifs(searchTerm) {
       rating: "pg-13"
     }
   });
-  return data;
+  return data.data;
+}
+
+async function getGifViews(listOfGifs) {
+  const container = new QWidget();
+  container.setLayout(new FlexLayout());
+
+  const promises = listOfGifs.map(async gif => {
+    const { url, width } = gif.images.fixed_width_small;
+    const movie = await getMovie(url);
+    const gifView = new QLabel();
+    gifView.setMovie(movie);
+    gifView.setInlineStyle(`width: ${width}`);
+    container.layout.addWidget(gifView);
+  });
+
+  await Promise.all(promises);
+  container.setInlineStyle(`
+      flex-direction: 'row';
+      flex-wrap: 'wrap';
+      justify-content: 'space-around';
+      width: 330px;
+      height: 300px;
+  `);
+  return container;
 }
 
 main().catch(console.error);

@@ -27,4 +27,21 @@ async function getMovie(url) {
   return movie;
 }
 
+const GIPHY_API_KEY = "api key here";
+
+async function searchGifs(searchTerm) {
+  const url = `https://api.giphy.com/v1/gifs/search`;
+  const { data } = await axios.get(url, {
+    params: {
+      api_key: GIPHY_API_KEY,
+      limit: 25,
+      q: searchTerm,
+      lang: "en",
+      offset: 0,
+      rating: "pg-13"
+    }
+  });
+  return data;
+}
+
 main().catch(console.error);

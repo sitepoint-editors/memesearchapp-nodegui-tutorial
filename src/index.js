@@ -6,7 +6,12 @@ const {
   QLineEdit,
   QPushButton,
   FlexLayout,
-  QScrollArea
+  QScrollArea,
+  QApplication,
+  QClipboardMode,
+  QMessageBox,
+  ButtonRole,
+  WidgetEventTypes
 } = require("@nodegui/nodegui");
 const axios = require("axios").default;
 
@@ -80,6 +85,14 @@ async function getGifViews(listOfGifs) {
     const gifView = new QLabel();
     gifView.setMovie(movie);
     gifView.setInlineStyle(`width: ${width}`);
+    gifView.addEventListener(WidgetEventTypes.MouseButtonRelease, () => {
+      const clipboard = QApplication.clipboard();
+      clipboard.setText(url, QClipboardMode.Clipboard);
+      showModal(
+        "Copied to clipboard!",
+        `You can press Cmd/Ctrl + V to paste the gif url: ${url}`
+      );
+    });
     container.layout.addWidget(gifView);
   });
 
@@ -129,6 +142,16 @@ function createSearchContainer(onSearch) {
     }  
   `);
   return searchContainer;
+}
+
+function showModal(title, details) {
+  const modal = new QMessageBox();
+  modal.setText(title);
+  modal.setDetailedText(details);
+  const okButton = new QPushButton();
+  okButton.setText("OK");
+  modal.addButton(okButton, ButtonRole.AcceptRole);
+  modal.exec();
 }
 
 main().catch(console.error);

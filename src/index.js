@@ -5,7 +5,8 @@ const {
   QLabel,
   QLineEdit,
   QPushButton,
-  FlexLayout
+  FlexLayout,
+  QScrollArea
 } = require("@nodegui/nodegui");
 const axios = require("axios").default;
 
@@ -16,25 +17,27 @@ const main = async () => {
   const center = new QWidget();
   center.setLayout(new FlexLayout());
 
-  let container = new QWidget();
+  const scrollArea = new QScrollArea();
+  scrollArea.setWidgetResizable(false);
+  scrollArea.setInlineStyle(`flex: 1; width: 340px; height: 400px;`);
   const searchContainer = createSearchContainer(async searchText => {
     try {
       // Create a new gif container with new gifs
       const listOfGifs = await searchGifs(searchText);
       const newGifContainer = await getGifViews(listOfGifs);
-
-      // remove existing container from the window
-      center.layout.removeWidget(container);
-      container.close();
-
-      // add the new gif container to the window
-      center.layout.addWidget(newGifContainer);
-      container = newGifContainer;
+      // remove existing container from the scrollArea
+      const oldContainer = scrollArea.takeWidget();
+      if (oldContainer) {
+        oldContainer.close();
+      }
+      // add the new gif container to the scrollArea
+      scrollArea.setWidget(newGifContainer);
     } catch (err) {
       console.error("Something happened!", err);
     }
   });
   center.layout.addWidget(searchContainer);
+  center.layout.addWidget(scrollArea);
 
   win.setCentralWidget(center);
   win.show();
@@ -86,7 +89,6 @@ async function getGifViews(listOfGifs) {
       flex-wrap: 'wrap';
       justify-content: 'space-around';
       width: 330px;
-      height: 300px;
   `);
   return container;
 }

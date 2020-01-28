@@ -10,10 +10,16 @@ const {
   QApplication,
   QClipboardMode,
   QMessageBox,
+  QSystemTrayIcon,
+  QIcon,
+  QMenu,
+  QAction,
   ButtonRole,
   WidgetEventTypes
 } = require("@nodegui/nodegui");
 const axios = require("axios").default;
+const iconImg = require("../assets/systray.png").default;
+const path = require("path");
 
 const main = async () => {
   const win = new QMainWindow();
@@ -46,6 +52,7 @@ const main = async () => {
 
   win.setCentralWidget(center);
   win.show();
+  systemTrayIcon(win);
 
   global.win = win;
 };
@@ -152,6 +159,31 @@ function showModal(title, details) {
   okButton.setText("OK");
   modal.addButton(okButton, ButtonRole.AcceptRole);
   modal.exec();
+}
+
+function systemTrayIcon(win) {
+  const icon = new QIcon(path.resolve(__dirname, iconImg));
+  const tray = new QSystemTrayIcon();
+  tray.setIcon(icon);
+  tray.show();
+
+  // Menu that should popup when clicking on systray icon.
+  const menu = new QMenu();
+  tray.setContextMenu(menu);
+
+  //Each item in the menu is called an action
+  const visibleAction = new QAction();
+  menu.addAction(visibleAction);
+  visibleAction.setText("Show/Hide");
+  visibleAction.addEventListener("triggered", () => {
+    if (win.isVisible()) {
+      win.hide();
+    } else {
+      win.show();
+    }
+  });
+
+  global.tray = tray;
 }
 
 main().catch(console.error);

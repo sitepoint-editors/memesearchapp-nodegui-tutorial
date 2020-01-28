@@ -16,15 +16,25 @@ const main = async () => {
   const center = new QWidget();
   center.setLayout(new FlexLayout());
 
-  const searchContainer = createSearchContainer(searchText => {
-    console.log("searchText: ", searchText);
+  let container = new QWidget();
+  const searchContainer = createSearchContainer(async searchText => {
+    try {
+      // Create a new gif container with new gifs
+      const listOfGifs = await searchGifs(searchText);
+      const newGifContainer = await getGifViews(listOfGifs);
+
+      // remove existing container from the window
+      center.layout.removeWidget(container);
+      container.close();
+
+      // add the new gif container to the window
+      center.layout.addWidget(newGifContainer);
+      container = newGifContainer;
+    } catch (err) {
+      console.error("Something happened!", err);
+    }
   });
   center.layout.addWidget(searchContainer);
-
-  const listOfGifs = await searchGifs("hello");
-  const container = await getGifViews(listOfGifs);
-
-  center.layout.addWidget(container);
 
   win.setCentralWidget(center);
   win.show();

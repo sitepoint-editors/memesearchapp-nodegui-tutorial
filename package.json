@@ -15,6 +15,7 @@
     "axios": "^0.19.2"
   },
   "devDependencies": {
+    "@nodegui/packer": "^1.1.2",
     "@types/node": "^13.1.4",
     "file-loader": "^5.0.2",
     "native-addon-loader": "^2.0.1",

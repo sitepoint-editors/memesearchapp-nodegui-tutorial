@@ -45,6 +45,7 @@ const main = async () => {
       scrollArea.setWidget(newGifContainer);
     } catch (err) {
       console.error("Something happened!", err);
+      showModal("Something is wrong!", JSON.stringify(err));
     }
   });
   center.layout.addWidget(searchContainer);

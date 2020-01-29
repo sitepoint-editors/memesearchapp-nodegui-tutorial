@@ -1,29 +1,24 @@
-# nodegui-starter
+# Meme Search App
 
-**Clone and run for a quick way to see NodeGUI in action.**
+This is a meme search app built using NodeGui and Giphy API for the tutorial here:
 
-## To Use
+This app is for educational purposes only.
 
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer.
+<center>
+<img src="./assets/final.gif" alt="final gif" width="600" />
+</center>
 
-Make sure you have met the requirements listed here: https://docs.nodegui.org/#/tutorial/development-environment
+## To run
 
 From your command line:
 
 ```bash
-# Clone this repository
-git clone https://github.com/nodegui/nodegui-starter
-# Go into the repository
-cd nodegui-starter
-# Install dependencies
 npm install
 # Run the app
 npm start
 ```
 
-## Resources for Learning NodeGUI
-
-- [docs.nodegui.org](https://nodegui.github.io/nodegui) - all of NodeGui and React Desktop's documentation
+Distributables for Mac, Windows and Linux can be found under releases: https://github.com/master-atul/memesearchapp-nodegui-tutorial/releases
 
 ## License
 

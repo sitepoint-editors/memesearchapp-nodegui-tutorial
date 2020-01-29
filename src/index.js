@@ -66,7 +66,7 @@ async function getMovie(url) {
   return movie;
 }
 
-const GIPHY_API_KEY = "your api key";
+const GIPHY_API_KEY = "apnNsuxJrdx0DHH6ufIFCNt0znGAmU3r";
 
 async function searchGifs(searchTerm) {
   const url = `https://api.giphy.com/v1/gifs/search`;

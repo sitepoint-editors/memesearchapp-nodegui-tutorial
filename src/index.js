@@ -15,7 +15,8 @@ const {
   QMenu,
   QAction,
   ButtonRole,
-  WidgetEventTypes
+  WidgetEventTypes,
+  QDialog
 } = require("@nodegui/nodegui");
 const axios = require("axios").default;
 const iconImg = require("../assets/systray.png").default;
@@ -55,6 +56,8 @@ const main = async () => {
   win.show();
   systemTrayIcon(win);
 
+  showAPIKeyDialog();
+
   global.win = win;
 };
 
@@ -66,7 +69,7 @@ async function getMovie(url) {
   return movie;
 }
 
-const GIPHY_API_KEY = "your api key";
+let GIPHY_API_KEY = "";
 
 async function searchGifs(searchTerm) {
   const url = `https://api.giphy.com/v1/gifs/search`;
@@ -185,6 +188,31 @@ function systemTrayIcon(win) {
   });
 
   global.tray = tray;
+}
+
+function showAPIKeyDialog() {
+  const dialog = new QDialog();
+  dialog.setLayout(new FlexLayout());
+  const label = new QLabel();
+  label.setText("Enter your Giphy API Key");
+  const input = new QLineEdit();
+  const okButton = new QPushButton();
+  okButton.setText("OK");
+  okButton.addEventListener("clicked", () => {
+    GIPHY_API_KEY = input.text();
+    dialog.close();
+  });
+  dialog.layout.addWidget(label);
+  dialog.layout.addWidget(input);
+  dialog.layout.addWidget(okButton);
+  dialog.setInlineStyle(`
+    padding: 10;
+    height: 150px;
+    flex-direction: 'column';
+    align-items:'center';
+    justify-content: 'space-around';
+  `);
+  dialog.exec();
 }
 
 main().catch(console.error);

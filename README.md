@@ -1,99 +1,29 @@
-# Meme Search App
+# Build a Native Desktop GIF Searcher App Using NodeGUI
 
-This is a meme search app built using NodeGui and Giphy API for the tutorial here:
+A native desktop GIF searcher app, built using [NodeGui](https://docs.nodegui.org/) and the [GIPHY](http://giphy.com/) API.
 
-**You need GIPHY API key to run the development version and the distributables**
+## Requirements
 
-This app is for educational purposes only.
+* [Node.js](http://nodejs.org/) (v12+)
+* [CMake](https://cmake.org/) (v3.1+)
+* [Make](https://www.gnu.org/software/make/)
+* [C++ compiler](https://gcc.gnu.org/) that supports C++11 and up
+* [GIPHY API key](https://developers.giphy.com/)
 
-<center>
-<img src="./assets/final.gif" alt="final gif" width="600" />
-</center>
+## Installation Steps (if applicable)
 
-## To run
-
-From your command line:
-
-```bash
-npm install
-# Run the app
-npm start
-```
-
-Distributables for Mac, Windows and Linux can be found under releases: https://github.com/master-atul/memesearchapp-nodegui-tutorial/releases
-
-The distributables have a minor code patch added as compared to the tutorial one. This allows user to enter their own GIPHY API key and use the app.
-
-The patch looks like this:
-
-```diff
-diff --git a/src/index.js b/src/index.js
-index e4baf86..ecd6bf0 100644
---- a/src/index.js
-+++ b/src/index.js
-@@ -15,7 +15,8 @@ const {
-   QMenu,
-   QAction,
-   ButtonRole,
--  WidgetEventTypes
-+  WidgetEventTypes,
-+  QDialog
- } = require("@nodegui/nodegui");
- const axios = require("axios").default;
- const iconImg = require("../assets/systray.png").default;
-@@ -55,6 +56,8 @@ const main = async () => {
-   win.show();
-   systemTrayIcon(win);
- 
-+  showAPIKeyDialog();
-+
-   global.win = win;
- };
- 
-@@ -66,7 +69,7 @@ async function getMovie(url) {
-   return movie;
- }
- 
--const GIPHY_API_KEY = "your api key";
-+let GIPHY_API_KEY = "";
- 
- async function searchGifs(searchTerm) {
-   const url = `https://api.giphy.com/v1/gifs/search`;
-@@ -187,4 +190,29 @@ function systemTrayIcon(win) {
-   global.tray = tray;
- }
- 
-+function showAPIKeyDialog() {
-+  const dialog = new QDialog();
-+  dialog.setLayout(new FlexLayout());
-+  const label = new QLabel();
-+  label.setText("Enter your Giphy API Key");
-+  const input = new QLineEdit();
-+  const okButton = new QPushButton();
-+  okButton.setText("OK");
-+  okButton.addEventListener("clicked", () => {
-+    GIPHY_API_KEY = input.text();
-+    dialog.close();
-+  });
-+  dialog.layout.addWidget(label);
-+  dialog.layout.addWidget(input);
-+  dialog.layout.addWidget(okButton);
-+  dialog.setInlineStyle(`
-+    padding: 10;
-+    height: 150px;
-+    flex-direction: 'column';
-+    align-items:'center';
-+    justify-content: 'space-around';
-+  `);
-+  dialog.exec();
-+}
-+
- main().catch(console.error);
-
-
-```
-
+1. Clone repo
+2. Run `npm install`
+3. Run `npm run start`
 
 ## License
 
-MIT
+SitePoint's code archives and code examples are licensed under the MIT license.
+
+Copyright © 2020 SitePoint
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

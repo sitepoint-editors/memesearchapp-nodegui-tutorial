@@ -1,86 +1,41 @@
 const {
-  QMainWindow,
-  QMovie,
-  QWidget,
-  QLabel,
-  QLineEdit,
-  QPushButton,
+  ButtonRole,
   FlexLayout,
-  QScrollArea,
   QApplication,
   QClipboardMode,
-  QMessageBox,
-  QSystemTrayIcon,
+  QDialog,
   QIcon,
+  QLabel,
+  QLineEdit,
+  QMainWindow,
   QMenu,
+  QMessageBox,
+  QMovie,
   QAction,
-  ButtonRole,
-  WidgetEventTypes
-} = require("@nodegui/nodegui");
-const axios = require("axios").default;
-const iconImg = require("../assets/systray.png").default;
-const path = require("path");
-
-const main = async () => {
-  const win = new QMainWindow();
-  win.setWindowTitle("Meme Search");
-
-  const center = new QWidget();
-  center.setLayout(new FlexLayout());
-
-  const scrollArea = new QScrollArea();
-  scrollArea.setWidgetResizable(false);
-  scrollArea.setInlineStyle(`flex: 1; width: 340px; height: 400px;`);
-  const searchContainer = createSearchContainer(async searchText => {
-    try {
-      // Create a new gif container with new gifs
-      const listOfGifs = await searchGifs(searchText);
-      const newGifContainer = await getGifViews(listOfGifs);
-      // remove existing container from the scrollArea
-      const oldContainer = scrollArea.takeWidget();
-      if (oldContainer) {
-        oldContainer.close();
-      }
-      // add the new gif container to the scrollArea
-      scrollArea.setWidget(newGifContainer);
-    } catch (err) {
-      console.error("Something happened!", err);
-      showModal("Something is wrong!", JSON.stringify(err));
-    }
-  });
-  center.layout.addWidget(searchContainer);
-  center.layout.addWidget(scrollArea);
-
-  win.setCentralWidget(center);
-  win.show();
-  systemTrayIcon(win);
-
-  global.win = win;
-};
-
-async function getMovie(url) {
-  const { data } = await axios.get(url, { responseType: "arraybuffer" });
-  const movie = new QMovie();
-  movie.loadFromData(data);
-  movie.start();
-  return movie;
-}
-
-const GIPHY_API_KEY = "your api key";
+  QPushButton,
+  QScrollArea,
+  QSystemTrayIcon,
+  QWidget,
+  WidgetEventTypes,
+} = require('@nodegui/nodegui');
+const axios = require('axios').default;
+const path = require('path');
+const iconImg = require('../assets/systray.png').default;
+let GIPHY_API_KEY = '';
 
 async function searchGifs(searchTerm) {
-  const url = `https://api.giphy.com/v1/gifs/search`;
-  const { data } = await axios.get(url, {
+  const url = 'https://api.giphy.com/v1/gifs/search';
+  const res = await axios.get(url, {
     params: {
       api_key: GIPHY_API_KEY,
       limit: 25,
       q: searchTerm,
-      lang: "en",
+      lang: 'en',
       offset: 0,
-      rating: "pg-13"
+      rating: 'pg-13'
     }
   });
-  return data.data;
+  return res.data.data;
 }
 
 async function getGifViews(listOfGifs) {
@@ -96,11 +51,14 @@ async function getGifViews(listOfGifs) {
     gifView.addEventListener(WidgetEventTypes.MouseButtonRelease, () => {
       const clipboard = QApplication.clipboard();
       clipboard.setText(url, QClipboardMode.Clipboard);
+
       showModal(
-        "Copied to clipboard!",
-        `You can press Cmd/Ctrl + V to paste the gif url: ${url}`
+        'Copied to clipboard!',
+        `You can press Cmd/Ctrl + V to paste the GIF url: ${url}`
       );
+
     });
+
     container.layout.addWidget(gifView);
   });
 
@@ -111,22 +69,31 @@ async function getGifViews(listOfGifs) {
       justify-content: 'space-around';
       width: 330px;
   `);
+
   return container;
+}
+
+async function getMovie(url) {
+  const { data } = await axios.get(url, { responseType: 'arraybuffer' });
+  const movie = new QMovie();
+  movie.loadFromData(data);
+  movie.start();
+  return movie;
 }
 
 function createSearchContainer(onSearch) {
   const searchContainer = new QWidget();
-  searchContainer.setObjectName("searchContainer");
+  searchContainer.setObjectName('searchContainer');
   searchContainer.setLayout(new FlexLayout());
 
   const searchInput = new QLineEdit();
-  searchInput.setObjectName("searchInput");
+  searchInput.setObjectName('searchInput');
 
   const searchButton = new QPushButton();
-  searchButton.setObjectName("searchButton");
-  searchButton.setText(" 🔎 ");
+  searchButton.setObjectName('searchButton');
+  searchButton.setText(' 🔎 ');
 
-  searchButton.addEventListener("clicked", () => {
+  searchButton.addEventListener('clicked', () => {
     onSearch(searchInput.text());
   });
 
@@ -147,7 +114,7 @@ function createSearchContainer(onSearch) {
       margin-left: 5px;
       width: 50px;
       height: 35px;
-    }  
+    }
   `);
   return searchContainer;
 }
@@ -157,7 +124,7 @@ function showModal(title, details) {
   modal.setText(title);
   modal.setDetailedText(details);
   const okButton = new QPushButton();
-  okButton.setText("OK");
+  okButton.setText('OK');
   modal.addButton(okButton, ButtonRole.AcceptRole);
   modal.exec();
 }
@@ -168,15 +135,13 @@ function systemTrayIcon(win) {
   tray.setIcon(icon);
   tray.show();
 
-  // Menu that should popup when clicking on systray icon.
   const menu = new QMenu();
   tray.setContextMenu(menu);
 
-  //Each item in the menu is called an action
   const visibleAction = new QAction();
   menu.addAction(visibleAction);
-  visibleAction.setText("Show/Hide");
-  visibleAction.addEventListener("triggered", () => {
+  visibleAction.setText('Show/Hide');
+  visibleAction.addEventListener('triggered', () => {
     if (win.isVisible()) {
       win.hide();
     } else {
@@ -187,4 +152,68 @@ function systemTrayIcon(win) {
   global.tray = tray;
 }
 
+function showAPIKeyDialog() {
+  const dialog = new QDialog();
+  dialog.setLayout(new FlexLayout());
+  const label = new QLabel();
+  label.setText('Enter your Giphy API Key');
+  const input = new QLineEdit();
+  const okButton = new QPushButton();
+  okButton.setText('OK');
+  okButton.addEventListener('clicked', () => {
+    GIPHY_API_KEY = input.text();
+    dialog.close();
+  });
+  dialog.layout.addWidget(label);
+  dialog.layout.addWidget(input);
+  dialog.layout.addWidget(okButton);
+  dialog.setInlineStyle(`
+    padding: 10;
+    height: 150px;
+    flex-direction: 'column';
+    align-items:'center';
+    justify-content: 'space-around';
+  `);
+  dialog.exec();
+}
+
+const main = async () => {
+  const win = new QMainWindow();
+  win.setWindowTitle('Meme Search');
+
+  const center = new QWidget();
+  center.setLayout(new FlexLayout());
+
+  const scrollArea = new QScrollArea();
+  scrollArea.setWidgetResizable(false);
+  scrollArea.setInlineStyle('flex: 1; width: 350px; height: 400px;');
+
+  const searchContainer = createSearchContainer(async searchText => {
+    try {
+      const listOfGifs = await searchGifs(searchText);
+      const newGifContainer = await getGifViews(listOfGifs);
+
+      const oldContainer = scrollArea.takeWidget();
+      if (oldContainer) oldContainer.close();
+
+      scrollArea.setWidget(newGifContainer);
+    } catch (err) {
+      console.error('Something happened!', err);
+      showModal('Something went wrong!', JSON.stringify(err));
+    }
+  });
+
+  center.layout.addWidget(searchContainer);
+  center.layout.addWidget(scrollArea);
+
+  win.setCentralWidget(center);
+  win.show();
+  systemTrayIcon(win);
+
+  showAPIKeyDialog();
+
+  global.win = win;
+};
+
 main().catch(console.error);
+
